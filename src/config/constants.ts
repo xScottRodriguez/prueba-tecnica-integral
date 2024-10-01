@@ -1,4 +1,8 @@
 const SEQUELIZE = 'SEQUELIZE';
-const TASK_REPOSITORY = 'TASK_REPOSITORY';
 
-export { SEQUELIZE, TASK_REPOSITORY };
+enum Repistories {
+  Task = 'TASK_REPOSITORY',
+  User = 'USER_REPOSITORY',
+}
+
+export { SEQUELIZE, Repistories };

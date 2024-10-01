@@ -8,6 +8,7 @@ interface EnvConfig {
   DB_USER: string;
   DB_PASSWORD: string;
   DB_NAME: string;
+  DB_DIALECT: string;
 }
 
 const envVarsSchema = joi
@@ -18,6 +19,7 @@ const envVarsSchema = joi
     DB_USER: joi.string().required(),
     DB_PASSWORD: joi.string().required(),
     DB_NAME: joi.string().required(),
+    DB_DIALECT: joi.string().required(),
   })
   .unknown(true);
 

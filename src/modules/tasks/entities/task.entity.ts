@@ -1,5 +1,12 @@
-import { Model, Column, Table, DataType } from 'sequelize-typescript'; // Importa Model de sequelize-typescript
+import {
+  Model,
+  Column,
+  Table,
+  DataType,
+  ForeignKey,
+} from 'sequelize-typescript'; // Importa Model de sequelize-typescript
 import { ApiProperty } from '@nestjs/swagger';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 
 @Table({ tableName: 'tasks' })
 export class Task extends Model<Task> {
@@ -34,4 +41,12 @@ export class Task extends Model<Task> {
     type: DataType.BOOLEAN,
   })
   isCompleted: boolean;
+
+  @ForeignKey(() => UserEntity)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    field: 'user_id',
+  })
+  userId: number;
 }

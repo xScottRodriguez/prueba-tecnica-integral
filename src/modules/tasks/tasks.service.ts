@@ -8,7 +8,7 @@ import {
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
-import { TASK_REPOSITORY } from 'src/config';
+import { Repistories } from 'src/config';
 // interface IPagination {
 //   page: number;
 //   limit: number;
@@ -19,7 +19,7 @@ import { TASK_REPOSITORY } from 'src/config';
 export class TasksService {
   #logger = new Logger(TasksService.name);
   constructor(
-    @Inject(TASK_REPOSITORY)
+    @Inject(Repistories.Task)
     private readonly taskRepository: typeof Task,
   ) {}
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
@@ -111,6 +111,8 @@ export class TasksService {
       };
     } catch (error) {
       this.#logger.error(error);
+      if (error instanceof NotFoundException) throw error;
+
       throw new InternalServerErrorException('Error deleting task');
     }
   }

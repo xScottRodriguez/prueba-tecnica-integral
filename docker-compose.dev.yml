@@ -8,17 +8,18 @@ services:
     environment:
       ACCEPT_EULA: 'Y'
       MSSQL_SA_PASSWORD: ${DB_PASSWORD}
+      MSSQL_DATABASE: ${DB_NAME}
     volumes:
       - sqlserver-data:/var/opt/mssql
     mem_limit: 4g
     mem_reservation: 2g
     networks:
-      - default
+      - prueba-network
   
   task-api:
     depends_on:
       - db
-    container_name: document-generator
+    container_name: api
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -31,11 +32,12 @@ services:
       - "${PORT}:3000" 
     command: pnpm start:dev
     networks:
-      - default
-
-
+      - prueba-network
 
 volumes:
   sqlserver-data:
     driver: local
 
+networks:
+  prueba-network:
+    driver: bridge

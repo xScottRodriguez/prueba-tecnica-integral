@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { Task } from '../modules/tasks/entities/task.entity';
 import { SEQUELIZE } from './constants';
 import { envs } from './envs';
+import { UserEntity } from '../modules/users/entities/user.entity';
 export const databaseProviders: Provider[] = [
   {
     provide: SEQUELIZE,
@@ -15,8 +16,8 @@ export const databaseProviders: Provider[] = [
         password: envs.dbPassword,
         database: envs.dbName,
       });
-      sequelize.addModels([Task]);
-      await sequelize.sync();
+      sequelize.addModels([Task, UserEntity]);
+
       return sequelize;
     },
   },

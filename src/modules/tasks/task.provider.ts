@@ -1,9 +1,9 @@
 import { Provider } from '@nestjs/common';
 import { Task } from './entities/task.entity';
-import { TASK_REPOSITORY } from '../../config';
-export const TaskProvider: Provider[] = [
+import { Repistories } from 'src/config';
+export const taskProvider: Provider[] = [
   {
-    provide: TASK_REPOSITORY,
+    provide: Repistories.Task,
     useValue: Task,
   },
 ];
