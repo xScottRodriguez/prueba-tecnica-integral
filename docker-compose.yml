@@ -1,0 +1,27 @@
+version: '3'
+services:
+  postgres-db:
+    env_file:
+      - ./back/.env
+    image: postgres:16.0
+    restart: always
+    volumes:
+      - ./postgres/:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - my_network
+
+  backend:
+    depends_on:
+      - postgres-db
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    env_file:
+      ./.env
+
+  
+ 
