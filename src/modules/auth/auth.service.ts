@@ -12,6 +12,8 @@ import { UserEntity } from '../users/entities/user.entity';
 import { Repositories } from 'src/config';
 import { LoginDto } from './dto';
 import { EncoderService } from './encoder.service';
+import { JwtService } from '@nestjs/jwt';
+import { ISignIn } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +22,10 @@ export class AuthService {
     private readonly userService: UsersService,
     @Inject(Repositories.User) private readonly repository: typeof UserEntity,
     private readonly encoderService: EncoderService,
+    private readonly jwt: JwtService,
   ) {}
 
-  async signIn(user: LoginDto): Promise<UserEntity> {
+  async signIn(user: LoginDto): Promise<ISignIn> {
     try {
       const userFound: UserEntity = await this.userService.findByEmail(
         user.email,
@@ -37,7 +40,14 @@ export class AuthService {
       if (!isPasswordValid)
         throw new InternalServerErrorException('Invalid password');
 
-      return userFound.toJSON();
+      const accessToken = await this.jwt.signAsync({
+        id: userFound.id,
+        email: userFound.email,
+      });
+      return {
+        user: userFound.toJSON(),
+        accessToken,
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
