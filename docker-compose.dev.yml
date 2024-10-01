@@ -1,17 +1,20 @@
+
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: sqlserver
+    container_name: prueba-db-sqlserver
     ports:
-      - '1433:1433'
+      - '${DB_PORT}:1433'
     environment:
       ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: 'root.123'
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
     volumes:
       - sqlserver-data:/var/opt/mssql
     mem_limit: 4g
     mem_reservation: 2g
-
+    networks:
+      - default
+  
   task-api:
     depends_on:
       - db
@@ -19,14 +22,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    restart: always
+    volumes:
+      - ./src:/usr/src/app/src
     env_file:
       ".env"
     ports:
       - "${PORT}:3000" 
+    command: pnpm start:dev
     networks:
       - default
+
 
 
 volumes:
   sqlserver-data:
     driver: local
+
