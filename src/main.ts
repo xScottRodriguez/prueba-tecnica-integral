@@ -1,15 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { envs } from './config';
 import { HttpExceptionFilter } from './common/http-exception.filter.filter';
 async function bootstrap() {
+  const logger = new Logger('bootstrap');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalFilters(new HttpExceptionFilter());
   // middlewares
-  app.enableCors({});
+  app.enableCors();
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -41,7 +42,7 @@ async function bootstrap() {
   SwaggerModule.setup(`${APP_ROUTE_PREFIX}/:version/docs`, app, document);
 
   await app.listen(envs.port, () => {
-    console.log(`Server is running on port ${envs.port}`);
+    logger.debug(`Server is running on port ${envs.port}`);
   });
 }
 bootstrap();

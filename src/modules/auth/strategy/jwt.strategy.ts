@@ -1,19 +1,32 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
-import { envs } from '../../../config';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UsersService } from 'src/modules/users/users.service';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { JwtPayload } from '../interfaces';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(
+    private userService: UsersService,
+
+    private configService: ConfigService,
+  ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: configService.get<string>('JWT_SECRET'),
       ignoreExpiration: false,
-      secretOrKey: envs.jwtSecret,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
   }
 
-  async validate(payload: any) {
-    return { userId: payload.sub, username: payload.username };
+  async validate(payload: JwtPayload): Promise<UserEntity> {
+    const { email } = payload;
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return new UserEntity(user).toJSON();
   }
 }

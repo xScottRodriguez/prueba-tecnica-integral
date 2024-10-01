@@ -1,10 +1,14 @@
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+
+@Injectable()
 export class EncoderService {
-  #saltRounds = 10;
-  encodePassword(password: string): string {
-    return bcrypt.hashSync(password, this.#saltRounds);
+  private salt: Promise<string> = bcrypt.genSalt();
+  async encodePassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, await this.salt);
   }
-  comparePassword(password: string, hash: string): boolean {
-    return bcrypt.compareSync(password, hash);
+
+  async checkPassword(password: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
   }
 }
