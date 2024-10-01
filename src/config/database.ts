@@ -17,7 +17,7 @@ export const databaseProviders: Provider[] = [
         database: envs.dbName,
       });
       sequelize.addModels([Task, UserEntity]);
-
+      await sequelize.sync();
       return sequelize;
     },
   },

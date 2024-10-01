@@ -2,20 +2,19 @@
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: prueba-db-sqlserver
+    container_name: sqlserver
     ports:
-      - '${DB_PORT}:1433'
+      - "1433:1433"
     environment:
-      ACCEPT_EULA: 'Y'
+      ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: ${DB_PASSWORD}
-      MSSQL_DATABASE: ${DB_NAME}
     volumes:
       - sqlserver-data:/var/opt/mssql
-    mem_limit: 4g
-    mem_reservation: 2g
     networks:
       - prueba-network
-  
+    mem_limit: 4g
+    mem_reservation: 2g
+
   task-api:
     depends_on:
       - db
