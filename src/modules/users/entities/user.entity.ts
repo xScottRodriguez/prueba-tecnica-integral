@@ -1,3 +1,4 @@
+import { Exclude, plainToClass } from 'class-transformer';
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Task } from 'src/modules/tasks/entities/task.entity';
 
@@ -28,8 +29,13 @@ export class UserEntity extends Model<UserEntity> {
     allowNull: false,
     type: DataType.STRING,
   })
+  @Exclude()
   password: string;
 
   @HasMany(() => Task)
   tasks: Task[];
+
+  toJSON() {
+    return plainToClass(UserEntity, this).dataValues;
+  }
 }

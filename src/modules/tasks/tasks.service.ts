@@ -8,7 +8,7 @@ import {
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
-import { Repistories } from 'src/config';
+import { Repositories } from 'src/config';
 // interface IPagination {
 //   page: number;
 //   limit: number;
@@ -19,7 +19,7 @@ import { Repistories } from 'src/config';
 export class TasksService {
   #logger = new Logger(TasksService.name);
   constructor(
-    @Inject(Repistories.Task)
+    @Inject(Repositories.Task)
     private readonly taskRepository: typeof Task,
   ) {}
   async create(createTaskDto: CreateTaskDto): Promise<Task> {

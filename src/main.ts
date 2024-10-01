@@ -4,9 +4,10 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { envs } from './config';
+import { HttpExceptionFilter } from './common/http-exception.filter.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
+  app.useGlobalFilters(new HttpExceptionFilter());
   // middlewares
   app.enableCors({});
 
