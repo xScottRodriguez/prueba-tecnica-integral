@@ -15,10 +15,10 @@ services:
   task-api:
     depends_on:
       - db
-    container_name: document-generator
+    container_name: api
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     env_file:
       ".env"
     ports:

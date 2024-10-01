@@ -55,15 +55,12 @@ export class AuthService {
 
   async signUp(user: CreateUserDto): Promise<UserResponseDto> {
     try {
-      const { password: pass, ...rest } = user;
-      const password = await this.encoderService.encodePassword(pass);
-      const userCreated: UserEntity = await this.repository.create({
-        ...rest,
-        password,
-      });
-      this.#logger.debug(`User created: ${userCreated.toJSON()}`);
+      // const { password: pass, ...rest } = user;
+      // const password = await this.encoderService.encodePassword(pass);
+      const userCreated: UserEntity = await this.repository.create(user);
       return userCreated?.toJSON();
     } catch (error) {
+      this.#logger.error(error.message);
       throw new InternalServerErrorException(error.message);
     }
   }
