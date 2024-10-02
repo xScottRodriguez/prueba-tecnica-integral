@@ -28,7 +28,12 @@ import { GetUser } from 'src/decorators';
 import { UserEntity } from '../users/entities/user.entity';
 import { ResponseHandler } from 'src/common/response.handler';
 import { ResponseDto } from 'src/common';
+import { IPagination } from 'src/interfaces';
 
+interface IpaginationResponse extends IPagination<Task> {
+  statusCode: number;
+  message: string;
+}
 @ApiBearerAuth()
 @ApiTags('tasks')
 @Controller('tasks')
@@ -66,9 +71,16 @@ export class TasksController {
   async findAll(
     @Query() pagination: PaginationQueryDto,
     @GetUser() user: UserEntity,
-  ): Promise<ResponseDto<Task[]>> {
-    const data: Task[] = await this.tasksService.findAll(user.id);
-    return this.responseHandler.success(HttpStatus.OK, data, 'Tasks retrieved');
+  ): Promise<IpaginationResponse> {
+    const data: IPagination<Task> = await this.tasksService.findAll(
+      pagination,
+      user.id,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Tasks retrieved',
+      ...data,
+    };
   }
 
   @ApiOkResponse({ type: ResponseDto<Task> })

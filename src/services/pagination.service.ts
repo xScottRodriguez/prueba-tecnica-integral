@@ -1,44 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { PaginatedServicesDto } from 'src/modules/tasks/dto/pagination-query.dto';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
+import {
+  IPagination,
+  IPaginationOptions,
+  ISequelizeModel,
+} from 'src/interfaces';
+import { getTakeAndSkip } from './get-take-skip';
 
-@Injectable()
-export class PaginationService<T> {
-  constructor(private readonly repository: Repository<T>) {}
+/**
+ * servicio de paginacion generica
+ * @param {T} -> es el tipo generico a retornar
+ */
+const pageBuilder = async <T>(
+  model: ISequelizeModel<T>,
+  options: IPaginationOptions<T>,
+): Promise<IPagination<T>> => {
+  try {
+    const { limit = 10, page = 1, where = {} } = options;
+    const { skip: offset, take } = getTakeAndSkip(limit, page);
 
-  async paginate(
-    page: number,
-    limit: number,
-    order: 'ASC' | 'DESC',
-    apiBaseUrl: string,
-    queryBuilderCallback?: (qb: SelectQueryBuilder<T>) => void,
-  ): Promise<PaginatedServicesDto<T>> {
-    try {
-      const offset = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      model.findMany({
+        where,
+        limit: take,
+        offset,
+      }),
+      model.count({ where }),
+    ]);
 
-      const queryBuilder = this.repository.createQueryBuilder();
+    const next: number | null = total > take + offset ? page + 1 : null;
+    const prev: number | null = offset > 0 ? page - 1 : null;
+    const count: number = Math.ceil(total / take);
 
-      if (queryBuilderCallback) {
-        queryBuilderCallback(queryBuilder);
-      }
-
-      const [data, total] = await queryBuilder
-        .orderBy('name', order) // Modifica 'name' según el campo que desees ordenar
-        .skip(offset)
-        .take(limit)
-        .getManyAndCount();
-
-      const nextPage =
-        total > offset + limit
-          ? `${apiBaseUrl}?page=${page + 1}&limit=${limit}`
-          : null;
-      const prevPage =
-        offset > 0 ? `${apiBaseUrl}?page=${page - 1}&limit=${limit}` : null;
-
-      return { data, total, prevPage, nextPage };
-    } catch (error) {
-      console.error(error.message);
-      throw new Error('Error trying to paginate entities');
-    }
+    return {
+      data,
+      total,
+      page: {
+        next,
+        prev,
+        count,
+      },
+    };
+  } catch (error) {
+    throw new InternalServerErrorException(
+      'Error al intentar realizar la busqueda',
+    );
   }
-}
+};
+export default pageBuilder;

@@ -9,6 +9,9 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 import { Repositories } from 'src/config';
+import pageBuilder from 'src/services/pagination.service';
+import { IPagination, ISequelizeModel } from 'src/interfaces';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 // interface IPagination {
 //   page: number;
 //   limit: number;
@@ -18,6 +21,11 @@ import { Repositories } from 'src/config';
 @Injectable()
 export class TasksService {
   #logger = new Logger(TasksService.name);
+  private taskModelWrapper: ISequelizeModel<Task> = {
+    findMany: (options) => this.taskRepository.findAll(options),
+    count: (options) => this.taskRepository.count(options),
+    // Otros métodos que necesites...
+  };
   constructor(
     @Inject(Repositories.Task)
     private readonly taskRepository: typeof Task,
@@ -31,48 +39,25 @@ export class TasksService {
     }
   }
 
-  async findAll(userId: number): Promise<Task[]> {
+  async findAll(
+    pagination: PaginationQueryDto,
+    userId: number,
+  ): Promise<IPagination<Task>> {
     try {
-      return await this.taskRepository.findAll({
+      const { limit, order, page } = pagination;
+      return pageBuilder<Task>(this.taskModelWrapper, {
+        page,
+        limit,
         where: {
           userId,
         },
+        orderBy: order,
       });
     } catch (error) {
       this.#logger.error(error);
       throw new InternalServerErrorException('Error finding tasks');
     }
   }
-  // async paginate({
-  //   limit,
-  //   order,
-  //   page,
-  //   apiBaseUrl = this.configService.get<string>('API_BASE_URL'),
-  // }: IPagination): Promise<PaginatedServicesDto<Task>> {
-  //   try {
-  //     const offset = (page - 1) * limit;
-
-  //     const [data, total] = await this.taskRepository
-  //       .createQueryBuilder('tasks')
-  //       .orderBy('tasks.description', order)
-  //       .skip(offset)
-  //       .take(limit)
-  //       .getManyAndCount();
-
-  //     const nextPage =
-  //       total > offset + limit
-  //         ? `${apiBaseUrl}/tasks?page=${page + 1}&limit=${limit}`
-  //         : null;
-  //     const prevPage =
-  //       offset > 0
-  //         ? `${apiBaseUrl}/tasks?page=${page - 1}&limit=${limit}`
-  //         : null;
-  //     return { data, total, prevPage, nextPage };
-  //   } catch (error) {
-  //     this.#logger.error(error.message);
-  //     throw new InternalServerErrorException('Error trying search services');
-  //   }
-  // }
 
   async findOne(id: number, userId: number): Promise<Task> {
     try {
