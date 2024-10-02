@@ -15,9 +15,17 @@ export const databaseProviders: Provider[] = [
         username: envs.dbUser,
         password: envs.dbPassword,
         database: envs.dbName,
+        dialectOptions: {
+          options: {
+            encrypt: false,
+            // trustServerCertificate: true,
+          },
+        },
       });
       sequelize.addModels([Task, UserEntity]);
-      await sequelize.sync();
+      if (process.env.NODE_ENV === 'development') {
+        await sequelize.sync();
+      }
       return sequelize;
     },
   },

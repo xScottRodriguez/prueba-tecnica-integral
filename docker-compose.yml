@@ -6,11 +6,11 @@ services:
       - '1433:1433'
     environment:
       ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: 'root.123'
-    volumes:
-      - sqlserver-data:/var/opt/mssql
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
     mem_limit: 4g
     mem_reservation: 2g
+    networks:
+      - prueba-network
 
   task-api:
     depends_on:
@@ -19,14 +19,27 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      ".env"
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DIALECT=${DB_DIALECT}
+      - NODE_ENV=production
+      - PORT=${PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
     ports:
       - "${PORT}:3000" 
     networks:
-      - default
+      - prueba-network
 
 
 volumes:
   sqlserver-data:
     driver: local
+
+networks:
+  prueba-network:
+    driver: bridge

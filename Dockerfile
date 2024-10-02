@@ -10,7 +10,6 @@ RUN pnpm install
 COPY . .
 
 RUN pnpm build
-
 FROM node:21-alpine
 
 WORKDIR /usr/src/app
@@ -20,10 +19,9 @@ RUN npm install -g pnpm
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/pnpm-lock.yaml ./
 COPY --from=builder /usr/src/app/dist ./dist
-
+COPY --from=builder /usr/src/app/.sequelizerc ./
+COPY --from=builder /usr/src/app/config/config.js ./config/config.js
+COPY --from=builder /usr/src/app/migrations ./migrations
 RUN pnpm install --production
-
-EXPOSE 5000
-ENV PORT 5000
-
-CMD ["pnpm","start:prod"]
+RUN cat ./config/config.js
+CMD ["sh", "-c", "npx wait-port db:1433 && pnpm migration:up && pnpm start:prod"]

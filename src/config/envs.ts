@@ -44,4 +44,5 @@ export const envs = {
   dbName: envVars.DB_NAME,
   jwtSecret: envVars.JWT_SECRET,
   jwtExpiration: envVars.JWT_EXPIRATION,
+  dbDialect: envVars.DB_DIALECT,
 };
