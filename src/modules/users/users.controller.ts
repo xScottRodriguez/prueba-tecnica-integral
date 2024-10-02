@@ -69,7 +69,9 @@ export class UsersController {
 
   @Delete('profile')
   @UseGuards(JwtAuthGuard)
-  async deleteProfile(@GetUser() user: UserEntity) {
+  async deleteProfile(
+    @GetUser() user: UserEntity,
+  ): Promise<IResponse<unknown>> {
     await this.userService.remove(user.id);
     return this.responseHandler.success(
       HttpStatus.OK,

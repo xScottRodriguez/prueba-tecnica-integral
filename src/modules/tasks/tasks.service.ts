@@ -22,18 +22,22 @@ export class TasksService {
     @Inject(Repositories.Task)
     private readonly taskRepository: typeof Task,
   ) {}
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+  async create(createTaskDto: CreateTaskDto, userId: number): Promise<Task> {
     try {
-      return await this.taskRepository.create({ ...createTaskDto });
+      return await this.taskRepository.create({ ...createTaskDto, userId });
     } catch (error) {
       this.#logger.error(error);
       throw new InternalServerErrorException('Error creating task');
     }
   }
 
-  async findAll(): Promise<Task[]> {
+  async findAll(userId: number): Promise<Task[]> {
     try {
-      return await this.taskRepository.findAll();
+      return await this.taskRepository.findAll({
+        where: {
+          userId,
+        },
+      });
     } catch (error) {
       this.#logger.error(error);
       throw new InternalServerErrorException('Error finding tasks');
@@ -70,10 +74,10 @@ export class TasksService {
   //   }
   // }
 
-  async findOne(id: number): Promise<Task> {
+  async findOne(id: number, userId: number): Promise<Task> {
     try {
       return await this.taskRepository.findOne({
-        where: { id },
+        where: { id, userId },
       });
     } catch (error) {
       this.#logger.error(error);
@@ -84,11 +88,14 @@ export class TasksService {
   async update(
     id: number,
     updateTaskDto: UpdateTaskDto,
+    userId: number,
   ): Promise<{
     message: string;
   }> {
     try {
-      await this.taskRepository.update(updateTaskDto, { where: { id } });
+      await this.taskRepository.update(updateTaskDto, {
+        where: { id, userId },
+      });
       return {
         message: 'Task updated successfully',
       };
@@ -98,11 +105,16 @@ export class TasksService {
     }
   }
 
-  async remove(id: number): Promise<{
+  async remove(
+    id: number,
+    userId: number,
+  ): Promise<{
     message: string;
   }> {
     try {
-      const existsTask = await this.findOne(id);
+      const existsTask = await this.taskRepository.findOne({
+        where: { id, userId },
+      });
       if (!existsTask) throw new NotFoundException('Task not found');
 
       await this.taskRepository.destroy({ where: { id } });

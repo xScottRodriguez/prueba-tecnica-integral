@@ -69,7 +69,7 @@ export class AuthService {
         email: userCreated.email,
       });
       return {
-        user: new UserResponseDto(userCreated),
+        user: new UserResponseDto(userCreated.toJSON()),
         accessToken: payload,
       };
     } catch (error) {
