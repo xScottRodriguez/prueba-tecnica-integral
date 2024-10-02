@@ -1,9 +1,11 @@
 import {
+  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpStatus,
   InternalServerErrorException,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseHandler } from 'src/common/response.handler';
@@ -14,6 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiBearerAuth()
 @ApiTags('users')
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly responseHandler: ResponseHandler) {}
@@ -26,6 +29,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   async getProfile(@GetUser() user: UserEntity) {
     try {
+      console.log('user', user);
       return this.responseHandler.success(
         HttpStatus.OK,
         user,

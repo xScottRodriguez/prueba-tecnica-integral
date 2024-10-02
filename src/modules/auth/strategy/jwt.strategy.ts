@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from 'src/modules/users/users.service';
@@ -8,6 +8,7 @@ import { envs } from 'src/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  #logger = new Logger(JwtStrategy.name);
   constructor(private userService: UsersService) {
     super({
       secretOrKey: envs.jwtSecret,
@@ -17,12 +18,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<UserEntity> {
-    const { email } = payload;
-    const user = await this.userService.findByEmail(email);
+    try {
+      const { email } = payload;
+      const user: UserEntity = await this.userService.findByEmail(email);
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+      if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return new UserEntity(user).toJSON();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return user.toJSON();
+    } catch (error) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
   }
 }

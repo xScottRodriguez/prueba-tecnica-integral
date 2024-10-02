@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { envs } from 'src/config';
 import { EncoderService } from './encoder.service';
+import { JwtStrategy } from './strategy';
 @Module({
   imports: [
     UsersModule,
@@ -16,7 +17,7 @@ import { EncoderService } from './encoder.service';
       signOptions: { expiresIn: envs.jwtExpiration },
     }),
   ],
-  providers: [AuthService, ResponseHandler, EncoderService],
+  providers: [AuthService, ResponseHandler, EncoderService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
