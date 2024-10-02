@@ -38,7 +38,7 @@ export class AuthService {
       );
 
       if (!isPasswordValid)
-        throw new InternalServerErrorException('Invalid password');
+        throw new UnprocessableEntityException('Invalid Credentials');
 
       const accessToken = await this.jwt.signAsync({
         id: userFound.id,
@@ -49,15 +49,20 @@ export class AuthService {
         accessToken,
       };
     } catch (error) {
+      if (error instanceof UnprocessableEntityException) throw error;
+
       throw new InternalServerErrorException(error.message);
     }
   }
 
   async signUp(user: CreateUserDto): Promise<UserResponseDto> {
     try {
-      // const { password: pass, ...rest } = user;
-      // const password = await this.encoderService.encodePassword(pass);
-      const userCreated: UserEntity = await this.repository.create(user);
+      const { password: pass, ...rest } = user;
+      const password = await this.encoderService.encodePassword(pass);
+      const userCreated: UserEntity = await this.repository.create({
+        ...rest,
+        password,
+      });
       return userCreated?.toJSON();
     } catch (error) {
       this.#logger.error(error.message);
