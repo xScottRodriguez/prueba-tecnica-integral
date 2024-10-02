@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  InternalServerErrorException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -12,7 +11,8 @@ import { ResponseHandler } from 'src/common/response.handler';
 import { GetUser } from 'src/decorators';
 import { UserEntity } from './entities/user.entity';
 import { ResponseDto } from 'src/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { UserDto } from './entities/dto/user.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -26,19 +26,13 @@ export class UsersController {
     type: ResponseDto<UserEntity>,
   })
   @Get('profile')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   async getProfile(@GetUser() user: UserEntity) {
-    try {
-      console.log('user', user);
-      return this.responseHandler.success(
-        HttpStatus.OK,
-        user,
-        'User profile retrieved successfully.',
-      );
-    } catch (error) {
-      throw new InternalServerErrorException(
-        error.message ?? 'Error retrieving user profile',
-      );
-    }
+    const userDto = new UserDto(user);
+    return this.responseHandler.success(
+      HttpStatus.OK,
+      userDto,
+      'User profile retrieved successfully.',
+    );
   }
 }
