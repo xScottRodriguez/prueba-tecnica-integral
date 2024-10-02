@@ -49,6 +49,7 @@ export class AuthService {
         accessToken,
       };
     } catch (error) {
+      this.#logger.error(error.message);
       if (error instanceof UnprocessableEntityException) throw error;
 
       throw new InternalServerErrorException(error.message);

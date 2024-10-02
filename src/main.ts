@@ -36,6 +36,7 @@ async function bootstrap() {
     .setTitle('Task Management API')
     .setDescription('The Task Management API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
 

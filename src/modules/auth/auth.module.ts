@@ -10,10 +10,10 @@ import { EncoderService } from './encoder.service';
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: envs.jwtSecret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: envs.jwtExpiration },
     }),
   ],
   providers: [AuthService, ResponseHandler, EncoderService],

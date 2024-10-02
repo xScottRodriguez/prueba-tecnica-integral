@@ -1,13 +1,40 @@
-import { Controller } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { UsersService } from './users.service';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  InternalServerErrorException,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseHandler } from 'src/common/response.handler';
+import { GetUser } from 'src/decorators';
+import { UserEntity } from './entities/user.entity';
+import { ResponseDto } from 'src/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly userService: UsersService,
-    private readonly responseHandler: ResponseHandler,
-  ) {}
+  constructor(private readonly responseHandler: ResponseHandler) {}
+
+  @ApiOkResponse({
+    description: 'User profile retrieved successfully.',
+    type: ResponseDto<UserEntity>,
+  })
+  @Get('profile')
+  @UseGuards(AuthGuard('jwt'))
+  async getProfile(@GetUser() user: UserEntity) {
+    try {
+      return this.responseHandler.success(
+        HttpStatus.OK,
+        user,
+        'User profile retrieved successfully.',
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        error.message ?? 'Error retrieving user profile',
+      );
+    }
+  }
 }
