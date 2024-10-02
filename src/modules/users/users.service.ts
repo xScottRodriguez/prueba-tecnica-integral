@@ -27,4 +27,12 @@ export class UsersService {
       throw new InternalServerErrorException(error.message);
     }
   }
+  async remove(id: number): Promise<void> {
+    try {
+      await this.repository.destroy({ where: { id } });
+      return;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 }

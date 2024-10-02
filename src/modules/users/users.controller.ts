@@ -1,6 +1,7 @@
 import {
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Patch,
@@ -63,6 +64,17 @@ export class UsersController {
       HttpStatus.OK,
       null,
       'User Profile Updated Successfully.',
+    );
+  }
+
+  @Delete('profile')
+  @UseGuards(JwtAuthGuard)
+  async deleteProfile(@GetUser() user: UserEntity) {
+    await this.userService.remove(user.id);
+    return this.responseHandler.success(
+      HttpStatus.OK,
+      null,
+      'User Profile Deleted Successfully.',
     );
   }
 }
