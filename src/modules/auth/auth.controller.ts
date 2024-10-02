@@ -17,11 +17,9 @@ export class AuthController {
   @ApiOkResponse({ type: ResponseDto<UserResponseDto> })
   @ApiBody({ type: CreateUserDto })
   @Post('sign-up')
-  async register(
-    @Body() user: CreateUserDto,
-  ): Promise<IResponse<UserResponseDto>> {
-    const data: UserResponseDto = await this.authService.signUp(user);
-    return this.responseHandler.success<UserResponseDto>(
+  async register(@Body() user: CreateUserDto): Promise<IResponse<ISignIn>> {
+    const data: ISignIn = await this.authService.signUp(user);
+    return this.responseHandler.success<ISignIn>(
       HttpStatus.CREATED,
       data,
       'User created successfully',

@@ -56,7 +56,7 @@ export class AuthService {
     }
   }
 
-  async signUp(user: CreateUserDto): Promise<UserResponseDto> {
+  async signUp(user: CreateUserDto): Promise<ISignIn> {
     try {
       const { password: pass, ...rest } = user;
       const password = await this.encoderService.encodePassword(pass);
@@ -64,7 +64,14 @@ export class AuthService {
         ...rest,
         password,
       });
-      return userCreated?.toJSON();
+      const payload: string = await this.jwt.signAsync({
+        id: userCreated.id,
+        email: userCreated.email,
+      });
+      return {
+        user: new UserResponseDto(userCreated),
+        accessToken: payload,
+      };
     } catch (error) {
       this.#logger.error(error.message);
       throw new InternalServerErrorException(error.message);
