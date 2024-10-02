@@ -37,7 +37,7 @@ Para ejecutar el proyecto en modo desarrollo:
 
 1. Inicia el servidor de desarrollo:
     ```bash
-    npm run start:dev
+    pnpm start:dev
     ```
 
 2. Abre tu navegador y navega a `http://localhost:3000/api/v1/docs`.
@@ -53,7 +53,7 @@ Para ejecutar el proyecto en modo producción:
 
 2. Inicia el servidor de producción:
     ```bash
-    npm run start:prod
+    pnpm start:prod
     ```
 
 3. Abre tu navegador y navega a `http://localhost:3000/api/v1/docs`.
